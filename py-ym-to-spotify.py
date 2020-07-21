@@ -41,18 +41,6 @@ def open_html(filename):
     return result
 
 
-# получение данных окружения
-dotenv_path = os.path.join(os.path.dirname(__file__), ".env")
-# print((dotenv_path))
-if os.path.exists(dotenv_path):
-    load_dotenv(dotenv_path)
-
-
-# app_api_id = os.getenv("TLG_APP_API_ID")
-
-# END получение данных окружения
-
-
 def open_playlist_ym(urls, outfilename="my_playlist.html"):
     session = requests.Session()
     r = session.get(urls)
@@ -70,9 +58,7 @@ def open_playlist_ym(urls, outfilename="my_playlist.html"):
         save_to_html(outfilename, soup.prettify())
 
 
-def open_playlist_ym_selenuim(urls, outfilename="my_playlist.html", hidden = True):
-
-
+def open_playlist_ym_selenuim(urls, outfilename="my_playlist.html", hidden=True):
     # настройки скрытого режима хрома
     WINDOW_SIZE = "1920,1080"
     chrome_options = Options()
@@ -85,16 +71,20 @@ def open_playlist_ym_selenuim(urls, outfilename="my_playlist.html", hidden = Tru
     driver.get(urls)
 
     i = 0
-    elem_exit =  True
+    elem_exit = True
     last_song_old = ""
     my_playlist = ""
     while elem_exit:
         print("Шаг ", i)
         elem_sidebar = driver.find_elements_by_css_selector('body')
         elem_sidebar[0].send_keys(Keys.PAGE_DOWN)
-        # print("Elem SideBar = ", elem_sidebar)
+        # TODO: надо убрать и сделать чтобы selenium дожидался сам загрузки
+        time.sleep(5)
+
+        print("Elem SideBar = ", elem_sidebar)
         i = i + 1
         elem_playlist = driver.find_elements_by_css_selector('div.d-track.typo-track.d-track_selectable')
+        print('LEN elem_playlist = ', len(elem_playlist))
         last_song = elem_playlist[-1].text
         print(last_song)
         if last_song == last_song_old:
@@ -104,8 +94,7 @@ def open_playlist_ym_selenuim(urls, outfilename="my_playlist.html", hidden = Tru
             for el in elem_playlist:
                 my_playlist = my_playlist + el.get_attribute("outerHTML")
 
-        # TODO: надо убрать и сделать чтобы selenium дожидался сам загрузки
-        time.sleep(5)
+
 
     print("Достигли конца страницы")
     save_to_html(outfilename, my_playlist)
@@ -114,8 +103,7 @@ def open_playlist_ym_selenuim(urls, outfilename="my_playlist.html", hidden = Tru
 if __name__ == "__main__":
     urls = f"https://music.yandex.ru/users/IlnurSoft/playlists/3"
     filename = "playlist.html"
-    # open_playlist_ym_selenuim(urls, filename)
-
+    #open_playlist_ym_selenuim(urls, filename, False)
 
     playlist_ym = open_html(filename)
 
@@ -125,8 +113,8 @@ if __name__ == "__main__":
     music = soup.select('div.d-track.typo-track.d-track_selectable')
 
     print(len(music))
-    #music_html = music.prettify()
-    #print(music_html)
+    # music_html = music.prettify()
+    # print(music_html)
     save_to_html('music.html', music[0].prettify())
 
     # item_music = music[0]   
@@ -137,13 +125,13 @@ if __name__ == "__main__":
 
         # информация о песне
         song_d = item_music.select_one('div.d-track__name')
-        song['name'] = song_d['title']        
+        song['name'] = song_d['title']
         song['link'] = ym_link + song_d.a['href']
         # print(song)
 
         # информация об артисте
         author_d = item_music.select_one('span.d-track__artists')
-        #print(author_d)
+        # print(author_d)
         author['name'] = author_d.a['title']
         author['link'] = ym_link + author_d.a['href']
         # print(author)
