@@ -1,13 +1,25 @@
-
 import os
+import time
 import json
 import requests
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv  # pip3 install python-dotenv
 
+from selenium import webdriver
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+from selenium.webdriver.chrome.options import Options
+
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException
 
 # константы
 ym_link = 'https://music.yandex.ru'
+
+
 # END константы
 
 # трек 
@@ -16,35 +28,33 @@ class Track:
         self.song = {}
         self.author = {}
 
-    
-
 
 def save_to_html(filename, htmlpage):
     with open(filename, 'w') as f:
-            f.write(htmlpage)
+        f.write(htmlpage)
 
 
 def open_html(filename):
     result = None
     with open(filename, 'r') as f:
-            result = f.read()
+        result = f.read()
     return result
+
 
 # получение данных окружения
 dotenv_path = os.path.join(os.path.dirname(__file__), ".env")
 # print((dotenv_path))
 if os.path.exists(dotenv_path):
     load_dotenv(dotenv_path)
+
+
 # app_api_id = os.getenv("TLG_APP_API_ID")
 
 # END получение данных окружения
 
 
-def open_playlist_ym(urls):       
-
-    # class = d-track typo-track d-track_selectable d-track_in-lib
-
-    session = requests.Session()    
+def open_playlist_ym(urls, outfilename="my_playlist.html"):
+    session = requests.Session()
     r = session.get(urls)
     print(r.status_code)
 
@@ -56,26 +66,62 @@ def open_playlist_ym(urls):
         # print(r.text)
 
         soup = BeautifulSoup(r.text, 'html.parser')
-        
-        save_to_html('page.html', soup.prettify())
+
+        save_to_html(outfilename, soup.prettify())
 
 
+def open_playlist_ym_selenuim(urls, outfilename="my_playlist.html", hidden = True):
 
 
-if __name__ =="__main__":
+    # настройки скрытого режима хрома
+    WINDOW_SIZE = "1920,1080"
+    chrome_options = Options()
+    if (hidden):
+        chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--window-size=%s" % WINDOW_SIZE)
+    # END настройки скрытого режима хрома
 
+    driver = webdriver.Chrome(chrome_options=chrome_options, executable_path='./drv/chromedriver')
+    driver.get(urls)
+
+    i = 0
+    elem_exit =  True
+    last_song_old = ""
+    my_playlist = ""
+    while elem_exit:
+        print("Шаг ", i)
+        elem_sidebar = driver.find_elements_by_css_selector('body')
+        elem_sidebar[0].send_keys(Keys.PAGE_DOWN)
+        # print("Elem SideBar = ", elem_sidebar)
+        i = i + 1
+        elem_playlist = driver.find_elements_by_css_selector('div.d-track.typo-track.d-track_selectable')
+        last_song = elem_playlist[-1].text
+        print(last_song)
+        if last_song == last_song_old:
+            elem_exit = False
+        else:
+            last_song_old = last_song
+            for el in elem_playlist:
+                my_playlist = my_playlist + el.get_attribute("outerHTML")
+
+        # TODO: надо убрать и сделать чтобы selenium дожидался сам загрузки
+        time.sleep(5)
+
+    print("Достигли конца страницы")
+    save_to_html(outfilename, my_playlist)
+
+
+if __name__ == "__main__":
     urls = f"https://music.yandex.ru/users/IlnurSoft/playlists/3"
-    # open_playlist_ym(urls)
+    filename = "playlist.html"
+    # open_playlist_ym_selenuim(urls, filename)
 
 
-    playlist_ym = open_html('page.html')   
+    playlist_ym = open_html(filename)
 
     # print(playlist_ym)
 
     soup = BeautifulSoup(playlist_ym, 'html.parser')
-    # news = soup.findAll('div', class_='lightlist__cont')
-    # d-track typo-track d-track_selectable d-track_in-lib d-track_selected
-    #music = soup.findAll('div', class_='d-track typo-track d-track_selectable d-track_in-lib')
     music = soup.select('div.d-track.typo-track.d-track_selectable')
 
     print(len(music))
@@ -107,9 +153,4 @@ if __name__ =="__main__":
         tracks.append(track)
 
     print(len(tracks))
-
-
-    
-    
-
 
