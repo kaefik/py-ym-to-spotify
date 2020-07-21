@@ -103,7 +103,7 @@ def open_playlist_ym_selenuim(urls, outfilename="my_playlist.html", hidden=True)
 if __name__ == "__main__":
     urls = f"https://music.yandex.ru/users/IlnurSoft/playlists/3"
     filename = "playlist.html"
-    #open_playlist_ym_selenuim(urls, filename, False)
+    #open_playlist_ym_selenuim(urls, filename, True)
 
     playlist_ym = open_html(filename)
 
@@ -119,6 +119,7 @@ if __name__ == "__main__":
 
     # item_music = music[0]   
     tracks = []
+    tracks_dict = {}  # ключ - это исполнитель, значение - массив с названиями треков-песен
     for item_music in music:
         author = {}
         song = {}
@@ -132,13 +133,29 @@ if __name__ == "__main__":
         # информация об артисте
         author_d = item_music.select_one('span.d-track__artists')
         # print(author_d)
+        # TODO: сделать чтобы выделялись несколько исполнителей, если они есть
         author['name'] = author_d.a['title']
         author['link'] = ym_link + author_d.a['href']
         # print(author)
+        # print(author['name'], song['name'])
+        # print(tracks_dict)
+        if author['name'] in tracks_dict:
+            ss = tracks_dict[author['name']]
+            # print("ss = ", ss)
+            tracks_dict[author['name']].add(song['name'])
+        else:
+            tracks_dict[author['name']] = {song['name']}
 
-        track = {'author': author, 'song': song}
-        # print(track)
-        tracks.append(track)
+    # print(tracks_dict)
+    print(len(tracks_dict))
 
-    print(len(tracks))
+    #  сохранение результата в файл
+    with open("my_playlist.csv", "w") as f:
+        for key, el in tracks_dict.items():
+            songs = ";".join(el)
+            row = f"{key};{songs}\n"
+            f.write(row)
+
+
+
 
