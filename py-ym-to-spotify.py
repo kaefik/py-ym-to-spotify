@@ -3,23 +3,13 @@ import time
 import json
 import requests
 from bs4 import BeautifulSoup
-from dotenv import load_dotenv  # pip3 install python-dotenv
 
 from selenium import webdriver
-from selenium.webdriver.common.action_chains import ActionChains
-from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.webdriver.chrome.options import Options
-
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException
 
 # константы
 ym_link = 'https://music.yandex.ru'
-
-
 # END константы
 
 # трек 
@@ -52,9 +42,7 @@ def open_playlist_ym(urls, outfilename="my_playlist.html"):
         # print(r.headers)
         # print(r.content)
         # print(r.text)
-
         soup = BeautifulSoup(r.text, 'html.parser')
-
         save_to_html(outfilename, soup.prettify())
 
 
@@ -94,8 +82,6 @@ def open_playlist_ym_selenuim(urls, outfilename="my_playlist.html", hidden=True)
             for el in elem_playlist:
                 my_playlist = my_playlist + el.get_attribute("outerHTML")
 
-
-
     print("Достигли конца страницы")
     save_to_html(outfilename, my_playlist)
 
@@ -103,7 +89,8 @@ def open_playlist_ym_selenuim(urls, outfilename="my_playlist.html", hidden=True)
 if __name__ == "__main__":
     urls = f"https://music.yandex.ru/users/IlnurSoft/playlists/3"
     filename = "playlist.html"
-    #open_playlist_ym_selenuim(urls, filename, True)
+
+    open_playlist_ym_selenuim(urls, filename, True)
 
     playlist_ym = open_html(filename)
 
@@ -151,10 +138,12 @@ if __name__ == "__main__":
 
     #  сохранение результата в файл
     with open("my_playlist.csv", "w") as f:
+        f.write('artist%track\n')
         for key, el in tracks_dict.items():
-            songs = ";".join(el)
-            row = f"{key};{songs}\n"
-            f.write(row)
+            # songs = ";".join(el)
+            for song in el:
+                row = f"{key}%{song}\n"
+                f.write(row)
 
 
 
