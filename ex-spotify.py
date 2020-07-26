@@ -34,6 +34,7 @@ class Spoti:
             pass
         return res
 
+    # добавить трек в плейлист
     def add_track(self, playlist_id, track):
         r = self.sp.user_playlist_add_tracks(user=self.user_id, playlist_id=my_playlist_id,
                                              tracks=[track])
