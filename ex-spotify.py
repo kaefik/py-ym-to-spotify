@@ -36,42 +36,47 @@ class Spoti:
 
     # добавить трек в плейлист
     def add_track(self, playlist_id, track):
-        r = self.sp.user_playlist_add_tracks(user=self.user_id, playlist_id=my_playlist_id,
+        r = self.sp.user_playlist_add_tracks(user=self.user_id, playlist_id=playlist_id,
                                              tracks=[track])
         return r
 
+# импорт треков в плейлист с id playlist_id пользователя username с временем задержки добавления треков
+def import_tracks_in_spotify_playlist(spoti_playlist, playlist_id, username, filename='my_playlist', sec=3, debug=False):
 
-if __name__ == '__main__':
-    # плейлист куда добавлять песни
-    my_playlist_id = '64AFVNsl40VrZw7l7y7Grc'
-    sp = Spoti(username='kaefik@outlook.com')
-
-    filename = 'my_playlist.csv'
-    spoti_playlist = []
-    with open(filename) as f:
-        reader = csv.DictReader(f, delimiter='%')
-        print(reader)
-        # reader = csv.reader(f)
-        for row in reader:
-            r = sp.search_artist_track(row['artist'], row['track'])
-            if r == {}:
-                row['id_spoti'] = ''
-            else:
-                row['id_spoti'] = r['id']
-            spoti_playlist.append(row)
-
-    # запись в файл с найденными id
-    fieldnames = ['artist', 'track', 'id_spoti']
-    with open('my_playlist_spoti.csv', 'w') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames, delimiter='%')
-        writer.writeheader()
-        for line in spoti_playlist:
-            print(line)
-            writer.writerow(line)
+    sp = Spoti(username=username)
+    # получение id конкретных треков
+    for row in spoti_playlist:
+        r = sp.search_artist_track(row['artist'], row['track'])
+        row['id_spoti'] = r['id'] if not (r=={}) else ''
 
     # добавление песен в мой плейлист
     for track in spoti_playlist:
-        if len(track['id_spoti'])>0:
-            print("ADD - ", track)
-            sp.add_track(my_playlist_id, track['id_spoti'])
-            time.sleep(3)
+        if len(track['id_spoti']) > 0:
+            print(f"ADD - {track['artist']} - {track['track']}")
+            sp.add_track(playlist_id, track['id_spoti'])
+            time.sleep(sec)
+    return spoti_playlist
+
+if __name__ == '__main__':
+    # плейлист куда добавлять песни
+    id = '3ARkYbJmmQorhyAGtjzWcq'
+
+    filename = f"my_playlist.csv"
+    outfilename = f"my_playlist_spoti.csv"
+    spoti_playlist = []
+    with open(filename) as f:
+        reader = csv.DictReader(f, delimiter='%')
+        for row in reader:
+            row['id_spoti'] = ''
+            spoti_playlist.append(row)
+
+    sp_playlist = import_tracks_in_spotify_playlist(spoti_playlist, playlist_id=id, username='kaefik@outlook.com')
+
+    # запись в файл с найденными id
+    fieldnames = ['artist', 'track', 'id_spoti']
+    with open(outfilename, 'w') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames, delimiter='%')
+        writer.writeheader()
+        for line in sp_playlist:
+            print(line)
+            writer.writerow(line)
