@@ -40,14 +40,15 @@ class Spoti:
                                              tracks=[track])
         return r
 
-# импорт треков в плейлист с id playlist_id пользователя username с временем задержки добавления треков
-def import_tracks_in_spotify_playlist(spoti_playlist, playlist_id, username, filename='my_playlist', sec=3, debug=False):
 
+# импорт треков в плейлист с id playlist_id пользователя username с временем задержки добавления треков
+def import_tracks_in_spotify_playlist(spoti_playlist, playlist_id, username, filename='my_playlist', sec=3,
+                                      debug=False):
     sp = Spoti(username=username)
     # получение id конкретных треков
     for row in spoti_playlist:
         r = sp.search_artist_track(row['artist'], row['track'])
-        row['id_spoti'] = r['id'] if not (r=={}) else ''
+        row['id_spoti'] = r['id'] if not (r == {}) else ''
 
     # добавление песен в мой плейлист
     for track in spoti_playlist:
@@ -56,6 +57,7 @@ def import_tracks_in_spotify_playlist(spoti_playlist, playlist_id, username, fil
             sp.add_track(playlist_id, track['id_spoti'])
             time.sleep(sec)
     return spoti_playlist
+
 
 if __name__ == '__main__':
     # плейлист куда добавлять песни
