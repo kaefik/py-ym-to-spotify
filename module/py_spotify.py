@@ -14,7 +14,7 @@ class Spoti:
             load_dotenv(dotenv_path)
         #  аунтификация пользователя
         scope = 'user-read-private,playlist-modify-private,playlist-modify-public'
-        self.sp = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=scope, redirect_uri='http://localhost',
+        self.sp = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=scope, redirect_uri='http://localhost:8080',
                                                             username=username))
         self.user_id = self.sp.me()['id']
 

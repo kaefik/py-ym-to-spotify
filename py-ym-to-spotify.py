@@ -1,5 +1,7 @@
 # запуск команды:
 # python3 tst-gooey.py --ignore-gooey
+import os
+import csv
 
 from gooey import Gooey, GooeyParser
 from module.py_ya_music import open_playlist_ym_selenuim, get_tracks_from_htmlpage_yandexmusic
