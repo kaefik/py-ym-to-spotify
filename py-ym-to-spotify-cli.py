@@ -9,7 +9,7 @@ from module.py_spotify import Spoti, import_tracks_in_spotify_playlist
 
 parser = argparse.ArgumentParser(description='Import tracks from Yandex Music playlist to Spotify playlist')
 parser.add_argument('ym', type=str, help='Input Yandex Music playlist')
-parser.add_argument('--sp_user', type=str, default='kaefik@outlook.com', help='Username Spotify')
+parser.add_argument('--sp_user', type=str, default='', help='Username Spotify')
 parser.add_argument('--spotify', type=str, default='', help='Output Spotify playlist')
 parser.add_argument('--debug', type=int, default='0', help='Debug flag (default: 0)')
 args = parser.parse_args()
@@ -22,6 +22,8 @@ user_spotify = args.sp_user
 
 filename = 'playlist.html'
 filename_playlist = 'my_playlist.csv'
+
+print(f'Start export tracks from Yandex Music playlist {ym}')
 open_playlist_ym_selenuim(ym, filename, hidden=True, debug=debug)
 
 playlist_ym = None
@@ -37,9 +39,9 @@ with open(filename_playlist, 'w') as f:
         for song in el:
             row = f'{key}%{song}\n'
             f.write(row)
-print(f'Сохранение плейлиста YandexMusic in {filename_playlist}')
+print(f'Save tracks from playlist YandexMusic to {filename_playlist}')
 
-if len(args.spotify) > 0:
+if (len(sp_url) > 0)  and (len(user_spotify) > 0):
     # TODO: сделать проверку на существование плейлиста
 
     print('Start import tracks to Spotify playlist.')
@@ -75,3 +77,5 @@ if len(args.spotify) > 0:
             writer.writerow(line)
 
     print('End import tracks to Spotify playlist.')
+else:
+    print("Don't  import to Spotify playlist.")
