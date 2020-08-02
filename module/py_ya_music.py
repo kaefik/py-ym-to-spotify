@@ -88,24 +88,3 @@ def get_tracks_from_htmlpage_yandexmusic(playlist_ym, debug=False):
 
     return tracks_dict
 
-
-if __name__ == "__main__":
-    # urls = f"https://music.yandex.ru/users/IlnurSoft/playlists/3"
-    urls = "https://music.yandex.ru/users/yamusic-daily/playlists/23758179"
-    filename = "playlist.html"
-
-    open_playlist_ym_selenuim(urls, filename, hidden=True, debug=False)
-
-    playlist_ym = None
-    with open(filename, 'r') as f:
-        playlist_ym = f.read()
-
-    tracks_dict = get_tracks_from_htmlpage_yandexmusic(playlist_ym, debug=False)
-
-    #  сохранение результата в файл
-    with open("my_playlist.csv", "w") as f:
-        f.write('artist%track\n')
-        for key, el in tracks_dict.items():
-            for song in el:
-                row = f"{key}%{song}\n"
-                f.write(row)

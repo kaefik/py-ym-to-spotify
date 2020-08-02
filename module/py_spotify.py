@@ -3,19 +3,16 @@ import csv
 import time
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
-from dotenv import load_dotenv  # pip3 install python-dotenv
 
 
 class Spoti:
 
-    def __init__(self, username=''):
-        dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
-        if os.path.exists(dotenv_path):
-            load_dotenv(dotenv_path)
+    def __init__(self, username, spotipy_client, spotipy_client_secret):
         #  аунтификация пользователя
         scope = 'user-read-private,playlist-modify-private,playlist-modify-public'
-        self.sp = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=scope, redirect_uri='http://localhost:8080',
-                                                            username=username))
+        self.sp = spotipy.Spotify(auth_manager=SpotifyOAuth(scope=scope, redirect_uri='http://localhost',
+                                                            username=username, client_id=spotipy_client,
+                                                            client_secret=spotipy_client_secret))
         self.user_id = self.sp.me()['id']
 
     # поиск песни по артисту и названию песни
@@ -42,9 +39,9 @@ class Spoti:
 
 
 # импорт треков в плейлист с id playlist_id пользователя username с временем задержки добавления треков
-def import_tracks_in_spotify_playlist(spoti_playlist, playlist_id, username, filename='my_playlist', sec=3,
-                                      debug=False):
-    sp = Spoti(username=username)
+def import_tracks_in_spotify_playlist(spoti_playlist, playlist_id, username, spotipy_client,
+                                      spotipy_client_secret, sec=3):
+    sp = Spoti(username=username, spotipy_client=spotipy_client, spotipy_client_secret=spotipy_client_secret)
     # получение id конкретных треков
     for row in spoti_playlist:
         r = sp.search_artist_track(row['artist'], row['track'])
@@ -58,27 +55,3 @@ def import_tracks_in_spotify_playlist(spoti_playlist, playlist_id, username, fil
             time.sleep(sec)
     return spoti_playlist
 
-
-if __name__ == '__main__':
-    # плейлист куда добавлять песни
-    id = '3ARkYbJmmQorhyAGtjzWcq'
-
-    filename = f"my_playlist.csv"
-    outfilename = f"my_playlist_spoti.csv"
-    spoti_playlist = []
-    with open(filename) as f:
-        reader = csv.DictReader(f, delimiter='%')
-        for row in reader:
-            row['id_spoti'] = ''
-            spoti_playlist.append(row)
-
-    sp_playlist = import_tracks_in_spotify_playlist(spoti_playlist, playlist_id=id, username='kaefik@outlook.com')
-
-    # запись в файл с найденными id
-    fieldnames = ['artist', 'track', 'id_spoti']
-    with open(outfilename, 'w') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames, delimiter='%')
-        writer.writeheader()
-        for line in sp_playlist:
-            print(line)
-            writer.writerow(line)
