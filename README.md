@@ -1,5 +1,11 @@
 # импорт музыки из плейлистов Яндекс Музыки в Спотифай
 
+**Первоначальная настройка скрипта:**
+
+переименовать файл *.env-example* в *.env* и прописать *client id* и *client id secret* который берёте из  https://developer.spotify.com/dashboard/login и создаете приложение (create in app): в строке **Redirect URIs** прописываете http://localhost
+
+
+
 * **вариант 1.** Использование режима командной строки.
 
   `py-ym-to-spotify-cli.py [-h] [--sp_user SP_USER] [--spotify SPOTIFY]   [--debug DEBUG]   ym`
@@ -18,4 +24,17 @@ optional arguments (необязательные аргументы):
 
 Если не --sp_user или --spotify будет не указан,  то импорт треков в Spotify будет пропущен.
 
-шаг 1 нельзя пропустить, только шаг 2.
+шаг 1 нельзя пропустить, только можно пропустить шаг 2.
+
+После авторизации на Spotify будет осуществлен редирект на http://localhost с кодом авторизации - эту веб-ссылку нужно скопировать и вставить после запроса: *Enter the URL you were redirected to: Opening in existing browser session*. и нажать <Enter>
+
+Возможные ошибки при выполнении скрипта:
+
+* ошибка в драйвере для chrome - скачивайте под конкретную версию браузера Google Chrome и операционной системы здесь https://chromedriver.chromium.org/downloads и скопируйте в папку drv
+
+  
+
+
+
+
+
