@@ -2,7 +2,8 @@
 
 **Первоначальная настройка скрипта:**
 
-переименовать файл *.env-example* в *.env* и прописать *client id* и *client id secret* который берёте из  https://developer.spotify.com/dashboard/login и создаете приложение (create in app): в строке **Redirect URIs** прописываете http://localhost
+1. переименовать файл *.env-example* в *.env* и прописать *client id* и *client id secret* который берёте из  https://developer.spotify.com/dashboard/login и создаете приложение (create in app): в строке **Redirect URIs** прописываете http://localhost
+2. установка бибилиотек для работы скрипта: `pip install -r requirements.txt`
 
 
 
